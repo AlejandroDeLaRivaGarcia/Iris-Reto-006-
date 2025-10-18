@@ -10,6 +10,7 @@
     </td>
   </tr>
 </table>
+
 ## Problema
 
 Cuando recibimos correos como el siguiente:
