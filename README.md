@@ -48,6 +48,15 @@ Este mensaje es preciso, fácil de entender y proporciona solo la información e
 * [ ] [Filtrar correos no deseados.](https://github.com/JavierLianoRioz/Proyecto-Iris/issues/1)
 * [ ] Publicar MVP accesible para más usuarios.
 
+### Fases del Proyecto
+
+El desarrollo de Iris se guía por una serie de fases con nombres temáticos que marcan nuestro progreso y objetivos.
+
+*   **Whisper of the Gods** — *(Fase Actual)* Fase alfa de comunicación inicial y configuración del núcleo del proyecto.
+*   **Golden Messenger** — Versión beta con funciones expandidas y mayor robustez.
+*   **Rainbow Path** — Una fase de transición y enlace, enfocada en la integración y preparación para el lanzamiento.
+*   **Celestial Call** — La fase final o de lanzamiento público, con el sistema pulido y listo para una audiencia general.
+
 ## Despliegue con Docker
 
 Este proyecto está configurado para funcionar con Docker y Docker Compose, lo que simplifica enormemente su despliegue.
