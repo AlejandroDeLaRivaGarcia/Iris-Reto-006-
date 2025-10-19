@@ -29,7 +29,7 @@ services:
       PGADMIN_SETUP_SERVER_USERNAME: ${POSTGRES_USER}
       PGADMIN_SETUP_SERVER_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5050:80"
+      - "127.0.0.1:5050:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
@@ -45,7 +45,7 @@ services:
     image: n8nio/n8n
     restart: always
     ports:
-      - "5678:5678"
+      - "127.0.0.1:5678:5678"
     environment:
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
@@ -75,7 +75,7 @@ services:
     image: evoapicloud/evolution-api:latest
     restart: always
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     env_file:
       - ./.env
     environment:
