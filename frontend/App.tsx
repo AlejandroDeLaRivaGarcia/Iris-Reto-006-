@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { type SubscriptionPayload } from './types';
 
 interface Subject {
     code: string; // Changed to code
