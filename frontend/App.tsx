@@ -27,7 +27,7 @@ const App: React.FC = () => {
     useEffect(() => {
         const fetchSubjects = async () => {
             try {
-                const response = await fetch('http://localhost:8000/subjects/');
+                const response = await fetch(`http://${window.location.hostname}:8000/subjects/`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -76,7 +76,7 @@ const App: React.FC = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:8000/subscriptions/', {
+            const response = await fetch(`http://${window.location.hostname}:8000/subscriptions/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

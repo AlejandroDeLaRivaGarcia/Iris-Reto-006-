@@ -9,10 +9,7 @@ from typing import List
 
 app = FastAPI()
 
-origins = [
-    "http://localhost",
-    "http://localhost:3000", # Frontend origin
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
