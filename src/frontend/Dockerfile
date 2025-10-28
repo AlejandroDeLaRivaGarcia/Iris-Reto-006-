@@ -1,5 +1,5 @@
 # Use an official Node.js base image
-FROM node:18-alpine as build
+FROM node:20-alpine as build
 
 # Set the working directory
 WORKDIR /app
@@ -8,13 +8,13 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Install dependencies
-RUN npm install
+RUN npm install -g pnpm && pnpm install
 
 # Copy the rest of the frontend code
 COPY . .
 
 # Build the React app
-RUN npm run build
+RUN pnpm run build
 
 # Use a lightweight web server to serve the static files
 FROM nginx:alpine
