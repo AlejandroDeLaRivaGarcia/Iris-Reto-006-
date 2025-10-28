@@ -14,6 +14,12 @@ The project is containerized using Docker and orchestrated with Docker Compose. 
 *   **Redis**: An in-memory data store.
 *   **Evolution API**: A service for interacting with the WhatsApp API.
 
+## System Architecture
+
+The target architecture for this project is based on a microservices model. For a detailed explanation of the services, their responsibilities, and the interaction flows, please see the official architecture document:
+
+*   **[System Architecture Design](./documentation/architecture.md)**
+
 ## Building and Running
 
 The project is designed to be run with Docker and Docker Compose.
