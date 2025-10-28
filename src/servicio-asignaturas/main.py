@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from . import models
-from .session import engine
-from .router import router
+from app import models
+from app.session import engine
+from app.router import router
 
 models.Base.metadata.create_all(bind=engine)
 
