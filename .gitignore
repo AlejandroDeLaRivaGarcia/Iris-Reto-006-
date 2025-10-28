@@ -37,3 +37,7 @@ docker-compose.override.yml
 
 # Backups
 backups/
+
+.gemini/
+gha-creds-*.json
+.github/
