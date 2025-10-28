@@ -63,3 +63,14 @@ The core logic of the application is orchestrated by an [n8n](https://n8n.io/) w
 3.  Using a large language model to summarize the content.
 4.  Querying the database for subscribed users.
 5.  Sending notifications via the Evolution API (WhatsApp).
+
+## Development Log
+
+### 2025-10-28: Project Refactoring and Build Optimization
+
+*   **Completed Project Restructuring**: Finalized the refactoring of the project structure by moving the `backend`, `frontend`, and `n8n` services into a unified `src` directory. This change was committed to the `refactor/backend` branch.
+*   **Diagnosed and Fixed Frontend Build**: Investigated and resolved an extremely slow Docker build process for the `frontend` service.
+    *   Identified and corrected an outdated Node.js version in the `Dockerfile`.
+    *   On user suggestion, adopted `pnpm` as the definitive solution after exploring other alternatives.
+    *   Modified the `frontend/Dockerfile` to use `pnpm`, reducing build times from over 9 minutes to approximately 11 seconds.
+*   **Committed Changes**: All changes, including the structural refactoring and the build process optimization, have been committed to the `refactor/backend` branch.
