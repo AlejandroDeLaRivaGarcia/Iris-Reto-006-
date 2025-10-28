@@ -10,7 +10,7 @@ The project is containerized using Docker and orchestrated with Docker Compose. 
 *   **Backend**: A FastAPI application that manages user subscriptions and exposes an API for the frontend.
 *   **PostgreSQL**: A relational database to store user and subscription data.
 *   **pgAdmin**: A web-based administration tool for the PostgreSQL database.
-*   **n8n**: A workflow automation tool that orchestrates the process of fetching emails, summarizing them using a large language model, and sending notifications via WhatsApp.
+*   **n8n**: A workflow automation tool that orchestrates the process of fetching emails, summarizing them using a large language model, and sending concise notifications via WhatsApp.
 *   **Redis**: An in-memory data store.
 *   **Evolution API**: A service for interacting with the WhatsApp API.
 
@@ -114,6 +114,21 @@ The `type` specifies the kind of work being done:
 3.  **Hotfix (Urgent Production Fix)**:
     *   Create your branch from `main`: `git checkout -b hotfix/critical-bug main`
     *   When finished, merge it into **both** `main` and `develop`.
+
+### Granularidad de los Commits
+
+Es crucial mantener un alto nivel de granularidad en los commits. Cada commit debe representar un cambio único, lógico y atómico. Evita agrupar múltiples cambios no relacionados en un solo commit.
+
+**Directrices:**
+*   **Responsabilidad Única:** Cada commit debe abordar una tarea específica, una corrección de error o un incremento de funcionalidad.
+*   **Testeable:** Idealmente, el código en cada commit debería ser testeable y dejar el proyecto en un estado funcional.
+*   **Progreso Incremental:** Divide las tareas grandes en commits más pequeños y manejables. Por ejemplo, si implementas una funcionalidad, separa los commits para:
+    *   Andamiaje inicial
+    *   Cambios en el esquema de la base de datos
+    *   Implementación de endpoints de API
+    *   Lógica de negocio
+    *   Tests
+*   **Mensajes Descriptivos:** Los mensajes de commit deben explicar claramente *qué* se cambió y *por qué*.
 
 ## Development Log
 
