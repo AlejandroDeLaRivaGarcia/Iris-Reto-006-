@@ -41,3 +41,5 @@ backups/
 .gemini/
 gha-creds-*.json
 .github/
+
+docker/postgres/seed.sql
