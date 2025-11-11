@@ -151,9 +151,9 @@ Implementa la arquitectura "Push" (SendGrid/Mailgun + Webhook) una vez, y haz qu
 ```mermaid
 graph TD
     subgraph "Cuentas de Usuarios (Gmail)"
-        Usuario_Tu["Tu Cuenta (javier.liano(at)...)"]
-        Usuario_Amigo1["Amigo 1 (pepe(at)...)"]
-        Usuario_Amigo2["Amigo 2 (maria(at)...)"]
+        Usuario_Tu["Tu Cuenta (javier.liano @...)"]
+        Usuario_Amigo1["Amigo 1 (pepe @...)"]
+        Usuario_Amigo2["Amigo 2 (maria @...)"]
     end
 
     subgraph "Servicio de Ingesta (Externo)"
