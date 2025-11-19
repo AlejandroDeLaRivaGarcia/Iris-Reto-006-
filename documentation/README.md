@@ -1,6 +1,6 @@
 # Indice
 
-- [Bitácora](bitacora.md)
+- [Bitácora](Bitacora.md)
 
 ## Diagramas del Proyecto (Mermaid)
 
