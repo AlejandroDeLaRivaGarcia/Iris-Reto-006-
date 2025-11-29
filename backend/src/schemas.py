@@ -13,7 +13,8 @@ class Subject(SubjectBase):
         from_attributes = True
 
 class UserBase(BaseModel):
-    username: str
+    email: str
+    name: str
     phone: str
 
 class UserCreate(UserBase):

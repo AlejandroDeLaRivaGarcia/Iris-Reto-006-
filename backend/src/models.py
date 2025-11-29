@@ -21,7 +21,8 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    name = Column(String)
     phone = Column(String)
 
     subjects = relationship("Subject", secondary=user_subjects, back_populates="subscribers")

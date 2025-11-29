@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
+from typing import List
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from . import models, schemas, crud
 from .database import engine, get_db
@@ -11,6 +13,22 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="Iris Backend", lifespan=lifespan)
+
+# Configure CORS
+origins = [
+    "http://localhost:3000",
+    "http://localhost:4321",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:4321",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():
@@ -37,3 +55,10 @@ def subscribe(user: schemas.UserCreate, db: Session = Depends(get_db)):
 def read_subjects(db: Session = Depends(get_db)):
     subjects = crud.get_all_subjects(db)
     return subjects
+
+@app.get("/users/{email}", response_model=schemas.User)
+def read_user(email: str, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db, email=email)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
