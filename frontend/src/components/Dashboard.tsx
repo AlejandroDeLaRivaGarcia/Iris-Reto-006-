@@ -1,14 +1,30 @@
 import React, { useState, useEffect, type ReactNode } from 'react';
 import { googleLogout } from '@react-oauth/google';
 import { UserHeader, SubscriptionCard, Modal } from './index';
+import { api } from '../services/api'; // Import the API service
 import PhoneOnboardingModal from './dashboard/PhoneOnboardingModal';
 import EditProfileModal from './dashboard/EditProfileModal';
 
+// Extend the User interface to include subjects from the backend API
 interface User {
   name: string;
   email: string;
   picture: string;
   phone?: string;
+  subjects?: BackendSubject[]; // Subjects as returned by the backend for the user
+}
+
+// Define the Subject interface as it comes from the backend
+interface BackendSubject {
+    code: string;
+    name: string;
+}
+
+// Define the Subject interface for the frontend display, including 'subscribed' status
+interface FrontendSubject {
+    id: string; // Maps to BackendSubject.code
+    name: string;
+    subscribed: boolean;
 }
 
 interface DashboardProps {
@@ -22,6 +38,11 @@ export default function Dashboard({ children }: DashboardProps) {
   const [phoneInput, setPhoneInput] = useState('');
   const [nameInput, setNameInput] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  const [allSubjects, setAllSubjects] = useState<BackendSubject[]>([]); // All subjects from backend
+  const [subjects, setSubjects] = useState<FrontendSubject[]>([]); // Subjects with subscribed status for display
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Initial Load
   useEffect(() => {
@@ -51,7 +72,7 @@ export default function Dashboard({ children }: DashboardProps) {
     }
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     const cleanPhone = phoneInput.replace(/\D/g, '');
     if (cleanPhone.length < 9) {
       setPhoneError('Por favor, introduce un número válido.');
@@ -63,33 +84,122 @@ export default function Dashboard({ children }: DashboardProps) {
     }
 
     if (user) {
-      const updatedUser = { ...user, name: nameInput, phone: phoneInput };
-      setUser(updatedUser);
-      localStorage.setItem('irisUser', JSON.stringify(updatedUser));
-      setShowEditModal(false);
-      setShowPhoneModal(false);
+        setIsSavingProfile(true);
+        try {
+            const subscribedSubjectCodes = subjects.filter(s => s.subscribed).map(s => s.id);
+            const updatedBackendUser = await api.updateSubscription({
+                username: user.email, // Assuming email is the username for backend
+                phone: cleanPhone,
+                subjects: subscribedSubjectCodes,
+            });
+
+            // Update local user state with the response from the backend
+            const updatedUser = { 
+                ...user, 
+                name: nameInput, 
+                phone: updatedBackendUser.phone, 
+                subjects: updatedBackendUser.subjects // Backend returns BackendSubject[]
+            };
+            setUser(updatedUser);
+            localStorage.setItem('irisUser', JSON.stringify(updatedUser));
+            setShowEditModal(false);
+            setShowPhoneModal(false);
+            setPhoneError(''); // Clear any previous errors
+        } catch (err: any) {
+            console.error("Error saving profile:", err);
+            setPhoneError(err.message || "Failed to save profile.");
     }
   };
 
-  // Mock Data
-  const [subjects, setSubjects] = useState([
-    { id: 'P01', name: 'Programación I', subscribed: false },
-    { id: 'P02', name: 'Base de Datos', subscribed: true },
-    { id: 'P03', name: 'Ingeniería de Software', subscribed: false },
-  ]);
+  const handleSaveSubscriptions = async () => {
+    if (!user) return;
+    setIsSavingProfile(true);
+    try {
+      const subscribedSubjectCodes = subjects.filter(s => s.subscribed).map(s => s.id);
+      const updatedBackendUser = await api.updateSubscription({
+        username: user.email, // Assuming email is the username for backend
+        phone: user.phone || '', // Use current phone, which should be set by handleSaveProfile
+        subjects: subscribedSubjectCodes,
+      });
 
-  const toggleSubject = (id: string) => {
-    setSubjects(subjects.map(s => 
-      s.id === id ? { ...s, subscribed: !s.subscribed } : s
-    ));
+      // Update local user state with the response from the backend
+      const updatedUser = { 
+          ...user, 
+          subjects: updatedBackendUser.subjects // Backend returns BackendSubject[]
+      };
+      setUser(updatedUser);
+      localStorage.setItem('irisUser', JSON.stringify(updatedUser));
+      // Optionally show a success message
+    } catch (err: any) {
+      console.error("Error saving subscriptions:", err);
+      setError(err.message || "Failed to save subscriptions."); // Display error in main dashboard
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
-  if (!user) {
+
+  // Fetch subjects from backend
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedSubjects = await api.getSubjects();
+        setAllSubjects(fetchedSubjects);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching subjects:", err);
+        setError("Failed to load subjects. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSubjects();
+  }, []);
+
+  // Combine allSubjects with user's subscriptions
+  useEffect(() => {
+    if (user && allSubjects.length > 0) {
+      const userSubscribedCodes = new Set(user.subjects?.map(s => s.code) || []);
+      const combinedSubjects: FrontendSubject[] = allSubjects.map(backendSub => ({
+        id: backendSub.code,
+        name: backendSub.name,
+        subscribed: userSubscribedCodes.has(backendSub.code),
+      }));
+      setSubjects(combinedSubjects);
+    } else if (allSubjects.length > 0 && !user) {
+      // If user is not loaded yet but subjects are, display them as unsubscribed
+      const combinedSubjects: FrontendSubject[] = allSubjects.map(backendSub => ({
+        id: backendSub.code,
+        name: backendSub.name,
+        subscribed: false,
+      }));
+      setSubjects(combinedSubjects);
+    }
+  }, [user, allSubjects]);
+
+  const toggleSubject = (id: string) => {
+    setSubjects(prevSubjects => 
+      prevSubjects.map(s => 
+        s.id === id ? { ...s, subscribed: !s.subscribed } : s
+      )
+    );
+  };
+
+  if (!user || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] p-4">
          <div className="w-12 h-12 rounded-full border-2 border-indigo-100 border-t-indigo-600 animate-spin"></div>
       </div>
     ); 
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] p-4 text-red-600 text-lg">
+        {error}
+      </div>
+    );
   }
 
   return (
@@ -118,7 +228,10 @@ export default function Dashboard({ children }: DashboardProps) {
                 />
                 {phoneError && <p className="text-red-500 text-xs mt-2 font-medium">{phoneError}</p>}
             </div>
-            <button onClick={handleSaveProfile} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all">Continuar</button>
+            <button onClick={handleSaveProfile} disabled={isSavingProfile} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                {isSavingProfile ? 'Guardando...' : 'Continuar'}
+            </button>
+
          </div>
       </Modal>
 
@@ -146,7 +259,9 @@ export default function Dashboard({ children }: DashboardProps) {
             </div>
             <div className="pt-2 flex gap-3">
                 <button onClick={() => setShowEditModal(false)} className="flex-1 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold py-3 rounded-xl transition-all">Cancelar</button>
-                <button onClick={handleSaveProfile} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all">Guardar</button>
+                <button onClick={handleSaveProfile} disabled={isSavingProfile} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    {isSavingProfile ? 'Guardando...' : 'Guardar'}
+                </button>
             </div>
          </div>
       </Modal>
@@ -168,11 +283,17 @@ export default function Dashboard({ children }: DashboardProps) {
                 </div>
 
                 <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end">
-                    <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all flex items-center gap-2">
-                        Guardar Cambios
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
+                    <button 
+                        onClick={handleSaveSubscriptions}
+                        disabled={isSavingProfile}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isSavingProfile ? 'Guardando...' : 'Guardar Cambios'}
+                        {!isSavingProfile && (
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                        )}
                     </button>
                 </div>
             </div>

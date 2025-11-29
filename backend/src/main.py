@@ -32,3 +32,8 @@ def create_subject(subject: schemas.SubjectCreate, db: Session = Depends(get_db)
 @app.post("/subscribe", response_model=schemas.User)
 def subscribe(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_or_update_subscription(db=db, user=user)
+
+@app.get("/subjects", response_model=List[schemas.Subject])
+def read_subjects(db: Session = Depends(get_db)):
+    subjects = crud.get_all_subjects(db)
+    return subjects

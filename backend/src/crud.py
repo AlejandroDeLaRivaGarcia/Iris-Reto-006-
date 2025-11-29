@@ -1,4 +1,6 @@
 from sqlalchemy.orm import Session
+from typing import List
+
 from . import models, schemas
 
 def get_user_by_username(db: Session, username: str):
@@ -6,6 +8,9 @@ def get_user_by_username(db: Session, username: str):
 
 def get_user_by_phone(db: Session, phone: str):
     return db.query(models.User).filter(models.User.phone == phone).first()
+
+def get_all_subjects(db: Session) -> List[models.Subject]:
+    return db.query(models.Subject).all()
 
 def create_or_update_subscription(db: Session, user: schemas.UserCreate):
     db_user = get_user_by_username(db, user.username)
