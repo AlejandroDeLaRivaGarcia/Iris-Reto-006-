@@ -18,3 +18,9 @@ Empezaré creando una serie de documentos que recojan el funcionamiento y planif
 - [Flujo de Suscripción](<Flujo de Suscripcion.md>)
 - [Flujo de envio](<Flujo de Envio.md>)
 - [Base de Datos](<Base de Datos.md>)
+
+### 29/11/2025 - Desarrollo del Frontend (Web)
+
+Se ha desarrollado desde cero la interfaz web del sistema utilizando Astro, React y Tailwind CSS. Se ha implementado el sistema de autenticación con Google, el dashboard de usuario, la gestión de suscripciones y el onboarding de teléfono.
+
+Detalles completos en: [Logs: Desarrollo Frontend](logs/2025-11-29_Frontend_Development.md)
