@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DashboardComponent from '../components/Dashboard';
+import StatusCard from '../components/dashboard/StatusCard.astro';
+---
+
+<Layout title="Iris - Mi Dashboard">
+	<DashboardComponent client:only="react">
+		<StatusCard />
+	</DashboardComponent>
+</Layout>
