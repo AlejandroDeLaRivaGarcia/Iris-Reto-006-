@@ -27,7 +27,7 @@ services:
       - PUBLIC_API_BASE_URL=http://localhost:8000
 
   n8n:
-    image: n8nio/n8n:latest
+    build: ./n8n
     ports:
       - "5678:5678"
     environment:
