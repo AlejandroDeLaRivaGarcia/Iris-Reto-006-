@@ -45,6 +45,10 @@ def create_subject(subject: schemas.SubjectCreate, db: Session = Depends(get_db)
     except SubjectAlreadyExistsError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@app.get("/subjects", response_model=List[schemas.Subject])
+def read_subjects(db: Session = Depends(get_db)):
+    return subject_service.get_all_subjects(db)
+
 @app.post("/subscribe", response_model=schemas.User)
 def subscribe(user: schemas.UserCreate, db: Session = Depends(get_db)):
     try:
