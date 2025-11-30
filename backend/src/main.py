@@ -1,10 +1,14 @@
 from contextlib import asynccontextmanager
 from typing import List
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from . import models, schemas, crud
 from .database import engine, get_db
+from .services import subject as subject_service
+from .services.subject import SubjectAlreadyExistsError
+from .services import subscription as subscription_service
+from .services.subscription import SubjectNotFoundForSubscriptionError
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,27 +38,19 @@ app.add_middleware(
 def read_root():
     return {"message": "Iris Backend is running"}
 
-@app.post("/subjects", response_model=schemas.Subject)
+@app.post("/subjects", response_model=schemas.Subject, status_code=status.HTTP_201_CREATED)
 def create_subject(subject: schemas.SubjectCreate, db: Session = Depends(get_db)):
-    # Check if exists
-    existing = db.query(models.Subject).filter(models.Subject.code == subject.code).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Subject already exists")
-    
-    db_subject = models.Subject(code=subject.code, name=subject.name)
-    db.add(db_subject)
-    db.commit()
-    db.refresh(db_subject)
-    return db_subject
+    try:
+        return subject_service.create_subject(db=db, subject=subject)
+    except SubjectAlreadyExistsError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/subscribe", response_model=schemas.User)
 def subscribe(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    return crud.create_or_update_subscription(db=db, user=user)
-
-@app.get("/subjects", response_model=List[schemas.Subject])
-def read_subjects(db: Session = Depends(get_db)):
-    subjects = crud.get_all_subjects(db)
-    return subjects
+    try:
+        return subscription_service.create_or_update_subscription(db=db, user_data=user)
+    except SubjectNotFoundForSubscriptionError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/users/{email}", response_model=schemas.User)
 def read_user(email: str, db: Session = Depends(get_db)):
