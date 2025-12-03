@@ -11,12 +11,18 @@ export default function PhoneOnboardingModal({ isOpen, onSave }: PhoneOnboarding
     const [error, setError] = useState('');
 
     const handleSave = () => {
+        if (phoneInput.includes('+')) {
+            setError('No escribas el prefijo (+34), solo tu número.');
+            return;
+        }
+
         const cleanPhone = phoneInput.replace(/\D/g, '');
         if (cleanPhone.length < 9) {
             setError('Por favor, introduce un número válido.');
             return;
         }
-        onSave(phoneInput);
+        // Prepend 34 for Spain
+        onSave(`34${cleanPhone}`);
     };
 
     return (
@@ -30,17 +36,22 @@ export default function PhoneOnboardingModal({ isOpen, onSave }: PhoneOnboarding
             }
         >
             <div className="space-y-4">
-                <p className="text-slate-500 text-center text-sm mb-4">Para enviarte las notificaciones, necesitamos tu número de teléfono activo en WhatsApp.</p>
+                <p className="text-slate-500 dark:text-slate-400 text-center text-sm mb-4">Para enviarte las notificaciones, necesitamos tu número de teléfono activo en WhatsApp.</p>
                 <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1">Número de teléfono</label>
-                    <input
-                        type="tel"
-                        id="phone"
-                        placeholder="+34 600 000 000"
-                        value={phoneInput}
-                        onChange={(e) => { setPhoneInput(e.target.value); setError(''); }}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all text-slate-900"
-                    />
+                    <label htmlFor="phone" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Número de teléfono</label>
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                            <span className="text-slate-500 dark:text-slate-400 font-medium">+34</span>
+                        </div>
+                        <input
+                            type="tel"
+                            id="phone"
+                            placeholder="600 000 000"
+                            value={phoneInput}
+                            onChange={(e) => { setPhoneInput(e.target.value); setError(''); }}
+                            className="w-full pl-14 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none transition-all text-slate-900 dark:text-white"
+                        />
+                    </div>
                     {error && <p className="text-red-500 text-xs mt-2 font-medium">{error}</p>}
                 </div>
                 <button onClick={handleSave} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all">Continuar</button>

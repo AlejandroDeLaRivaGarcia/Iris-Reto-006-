@@ -17,12 +17,22 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialName,
     useEffect(() => {
         if (isOpen) {
             setName(initialName);
-            setPhone(initialPhone);
+            // Strip 34 prefix if present for display
+            let phoneToDisplay = initialPhone;
+            if (phoneToDisplay.startsWith('34')) {
+                phoneToDisplay = phoneToDisplay.substring(2);
+            }
+            setPhone(phoneToDisplay);
             setError('');
         }
     }, [isOpen, initialName, initialPhone]);
 
     const handleSave = () => {
+        if (phone.includes('+')) {
+            setError('No escribas el prefijo (+34), solo tu número.');
+            return;
+        }
+
         const cleanPhone = phone.replace(/\D/g, '');
         if (cleanPhone.length < 9) {
             setError('Por favor, introduce un número válido.');
@@ -32,31 +42,37 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialName,
             setError('El nombre no puede estar vacío.');
             return;
         }
-        onSave(name, phone);
+        // Prepend 34
+        onSave(name, `34${cleanPhone}`);
     };
 
     return (
         <Modal isOpen={isOpen} title="Editar Perfil" onClose={onClose}>
             <div className="space-y-4">
                 <div>
-                    <label htmlFor="edit-name" className="block text-sm font-medium text-slate-700 mb-1">Nombre completo</label>
+                    <label htmlFor="edit-name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nombre completo</label>
                     <input
                         type="text"
                         id="edit-name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none transition-all text-slate-900"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
                     />
                 </div>
                 <div>
-                    <label htmlFor="edit-phone" className="block text-sm font-medium text-slate-700 mb-1">Número de teléfono</label>
-                    <input
-                        type="tel"
-                        id="edit-phone"
-                        value={phone}
-                        onChange={(e) => { setPhone(e.target.value); setError(''); }}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none transition-all text-slate-900"
-                    />
+                    <label htmlFor="edit-phone" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Número de teléfono</label>
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                            <span className="text-slate-500 dark:text-slate-400 font-medium">+34</span>
+                        </div>
+                        <input
+                            type="tel"
+                            id="edit-phone"
+                            value={phone}
+                            onChange={(e) => { setPhone(e.target.value); setError(''); }}
+                            className="w-full pl-14 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
+                        />
+                    </div>
                     {error && <p className="text-red-500 text-xs mt-2 font-medium">{error}</p>}
                 </div>
                 <div className="pt-2 flex gap-3">
