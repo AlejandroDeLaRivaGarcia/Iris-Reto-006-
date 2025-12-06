@@ -135,3 +135,4 @@ n8n/flujos
 redis_data/
 evolution_store/
 evolution_instances/
+docker/pgadmin/pgpass
