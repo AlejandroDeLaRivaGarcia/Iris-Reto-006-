@@ -11,6 +11,5 @@ RUN npm install -g pnpm && pnpm install
 
 COPY . .
 
-EXPOSE 4321
-
-CMD ["pnpm", "run", "dev", "--host"]
+ENV HOST=0.0.0.0
+CMD ["pnpm", "run", "dev"]

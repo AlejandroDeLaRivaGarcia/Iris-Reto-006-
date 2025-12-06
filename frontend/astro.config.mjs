@@ -15,7 +15,8 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     server: {
-      allowedHosts: ['rowan-courtly-milena.ngrok-free.dev']
+      allowedHosts: ['rowan-courtly-milena.ngrok-free.dev'],
+      host: true,
     }
   }
 });
